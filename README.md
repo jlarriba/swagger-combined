@@ -22,3 +22,12 @@ An example swagger-combined.properties:
  ```
  
  It will start a server in 0.0.0.0:8080 and serve the combined json.
+ 
+ The parameters can also be passed as environment variables. The application
+ will search for the following environment variables:
+ 
+ ```
+  SWAGGER_COMBINED_URLS=http://petstore.swagger.io/v2/swagger.json,http://<my-own-api>/v1/swagger.json
+  SWAGGER_COMBINED_TITLE=Combined Example API
+  SWAGGER_COMBINED_VERSION=1.0
+ ```
