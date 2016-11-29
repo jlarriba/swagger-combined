@@ -41,25 +41,37 @@ public class App {
 
 class SwaggerHandler implements HttpHandler {
 
+    private String swaggerCombinedTitle;
+    private String swaggerCombinedVersion;
+    private String[] swaggerCombinedUrls;
+
     @Override
     public void handleRequest(final HttpServerExchange exchange) throws Exception {
-        Properties props = new Properties();
-        FileInputStream file = new FileInputStream("./swagger-combined.properties");
-        props.load(file);
-        file.close();
+        if (System.getenv("SWAGGER_COMBINED_URLS") != null) {
+            swaggerCombinedTitle = System.getenv("SWAGGER_COMBINED_TITLE");
+            swaggerCombinedVersion = System.getenv("SWAGGER_COMBINED_VERSION");
+            swaggerCombinedUrls = System.getenv("SWAGGER_COMBINED_URLS").split(",");
+        } else {
+            Properties props = new Properties();
+            FileInputStream file = new FileInputStream("./swagger-combined.properties");
+            props.load(file);
+            file.close();
+            swaggerCombinedTitle = props.getProperty("swagger.combined.title");
+            swaggerCombinedVersion = props.getProperty("swagger.combined.version");
+            swaggerCombinedUrls = props.getProperty("swagger.combined.urls").split(",");
+        }
 
         Swagger swagger = new Swagger();
         swagger.setSwagger("2.0");
         swagger.setBasePath("/");
         Info info = new Info();
-        info.setTitle(props.getProperty("swagger.combined.title"));
-        info.setVersion(props.getProperty("swagger.combined.version"));
+        info.setTitle(swaggerCombinedTitle);
+        info.setVersion(swaggerCombinedVersion);
         swagger.setInfo(info);
         Map<String, Path> paths = new HashMap<>();
-        String[] urls = props.getProperty("swagger.combined.urls").split(",");
-        if (urls != null) {
-            for (int i = 0; i < urls.length; i++) {
-                Swagger s = new SwaggerParser().read(urls[i]);
+        if (swaggerCombinedUrls != null) {
+            for (int i = 0; i < swaggerCombinedUrls.length; i++) {
+                Swagger s = new SwaggerParser().read(swaggerCombinedUrls[i]);
                 if (s != null) {
                     Map<String, Path> ps = s.getPaths();
                     Set<String> keys = s.getPaths().keySet();
